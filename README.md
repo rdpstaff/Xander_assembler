@@ -1,15 +1,11 @@
-# Xander skeleton analysis pipeline
+# Xander Gene_targeted Assember analysis pipeline
 
 ### Required tools
 
-* GNU Make
 * Python 2.7+
-    * numpy 1.6+
-    * matplotlib 1.2+
-    * biopython
-    * argparse
 * Java 1.6+
 * HMMER 3.0 (If using 3.1+ remove --allcol from gene.Makefile)
+* GNU Make (optional)
 
 ## Per Gene Preparation:
     Reference Set Selection - Select a set of reference sequences (resouce: http://fungene.cme.msu.edu/) representative of the gene of interest.  More diversity is better, more sequences means more starting points (more computational time) but less suceptiable to noise than model creation.
@@ -27,21 +23,23 @@ The analysis pipeline will attempt to assemble all genes specified in the bin/ru
 ## Analysis
 
 ### Quickstart using shell script
-Using testdata as an example. Copy or Edit bin/run_xander_skel.sh variables SEQFILE, WORKDIR, REF_DIR and JAR_DIR to be the absolute paths, adjust the De Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size,
-```bash
+Using testdata as an example. Copy and edit bin/run_xander_skel.sh variables SEQFILE, WORKDIR, REF_DIR and JAR_DIR to be the absolute paths, adjust the De Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size,
+```
+bash
 cd testdata
 cp ../bin/run_xander_skel.sh run_xander.sh
 # edit the run_xander.sh
 ./run_xander.sh
 ```
 
-How to choose the FILTER_SIZE for your dataset?
-The size of the bloom filter (or memory needed) is 2^FILTER_SIZE bits. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1/2 GB memory) for data size of 2G, 35 (4 GB memory) for data size of 6G, 38 (32 GB memory) for data size of 70G were appropriate. Increase the FILTER_SIZE if the predicted false positive rate is greater than 1%. 
+### How to choose the FILTER_SIZE for your dataset?
+The size of the bloom filter (or memory needed) is approximately 2^FILTER_SIZE bits. Increase the FILTER_SIZE if the predicted false positive rate (in output file *_bloom_stat.txt) is greater than 1%. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1/2 GB memory) for data size of 2G, 35 (4 GB memory) for data size of 6G, 38 (32 GB memory) for data size of 70G were appropriate. 
 
 ### Suggested Workflow if using Makefile
 
 While you can type 
-```bash
+```
+bash
 cp Makefile_skel Makefile
 ```
 
@@ -49,17 +47,20 @@ some steps steps can be run in parallel as suggested below
 
 1. 
     a. Building the bloom filter (once per dataset)
-```bash
+```
+	bash
 	make bloom
 ```
 
     b. Identify assembly starting kmers (can be done with multiple genes with bloom filter generation),
-```bash
+```
+	bash
 	make uniq_starts
 ```
 
 2. Assemble each gene (each gene can be done in parallel)
-```bash
+```
+bash
 make <gene_name>
 ```
 
