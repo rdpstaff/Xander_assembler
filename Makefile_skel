@@ -1,0 +1,85 @@
+# must be absolute path
+SEQFILE=/realpath/myreads.fasta
+WORKDIR=/realpath/output_dir/
+REF_DIR=/realpath/Xander_assembler/
+JAR_DIR=/realpath/RDPTools/
+genes=nifh nirk rplb
+
+# De Bruijn Graph Build Parameters
+MAX_JVM_HEAP=8G # memory for java program, (must be larger than FILTER_SIZE below)
+# kmer size, should be multiple of 3, recommend 45, minimum 30, maximum 63
+K_SIZE=45
+FILTER_SIZE=34 # size of the bloom filter, 2**FILTER_SIZE, 38 = 32 gigs, 37 = 16 gigs, 36 = 8 gigs, 35 = 4 gigs, increase FILTER_SIZE if the bloom filter predicted false positive rate is greater than 1%
+MIN_COUNT=1 # minimum kmer occurrence SEQFILE to be included in the final bloom filter
+
+# Contig Search Parameters
+PRUNE=20 # maximum number of consecutive decreases in scores before being pruned, -1 means no pruning, recommended 20 for large dataset
+PATHS=1 # number of paths to search for each starting kmer, default 1 returns the shortest path
+LIMIT_IN_SECS=100 # number of seconds a search allowed for each kmer, recommend 100 secs for 1 shortest path, need to increase if PATHS is greater than 11
+
+# Contig Filtering Parameters
+MIN_BITS=50 # mimimum assembled contigs bit score
+MIN_LENGTH=150  # minimum assembled protein contigs
+
+NAME=k$(K_SIZE)
+
+export
+
+all: $(genes)
+
+.PHONY: $(genes) clean veryclean 
+
+bloom: $(WORKDIR)/$(NAME)/$(NAME).bloom
+uniq_starts: $(WORKDIR)/$(NAME)/uniq_starts.txt
+
+$(WORKDIR)/$(NAME)/$(NAME).bloom: $(SEQFILE)
+	mkdir -p $(WORKDIR)/$(NAME) && cd $(WORKDIR)/$(NAME) && java -Xmx$(MAX_JVM_HEAP) -jar $(JAR_DIR)/hmmgs.jar build $(SEQFILE) $(NAME).bloom $(K_SIZE) $(FILTER_SIZE) $(MIN_COUNT) 4 30 >& $(NAME)_bloom_stat.txt
+
+# get unique starting kmer for the gene
+%/gene_starts.txt: $(WORKDIR)/$(NAME)/uniq_starts.txt
+	mkdir -p $(WORKDIR)/$(NAME)/$* && cd $(WORKDIR)/$(NAME)/$* && grep $* ../uniq_starts.txt > gene_starts.txt
+
+# search contigs
+%/gene_starts.txt_nucl.fasta: bloom 
+	cd $(WORKDIR)/$(NAME)/$* && java -Xmx$(MAX_JVM_HEAP) -jar $(JAR_DIR)/hmmgs.jar search -p $(PRUNE) $(PATHS) $(LIMIT_IN_SECS) $(WORKDIR)/$(NAME)/$(NAME).bloom $(REF_DIR)/$*/for_enone.hmm $(REF_DIR)/$*/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt
+
+# merge contigs from the search results for each gene
+%/nucl_merged_derep.fasta: 
+	cd $(WORKDIR)/$(NAME)/$* && java -Xmx$(MAX_JVM_HEAP) -jar $(JAR_DIR)/hmmgs.jar merge -a -b $(MIN_BITS) --min-length $(MIN_LENGTH) $(REF_DIR)/$*/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta
+	cd $(WORKDIR)/$(NAME)/$* && java -Xmx2g -jar $(JAR_DIR)/Clustering.jar derep -u -o nucl_merged_derep.fasta ids samples nucl_merged.fasta
+	cd $(WORKDIR)/$(NAME)/$* && java -jar $(JAR_DIR)/FrameBot.jar framebot -N -l $(MIN_LENGTH) -o $*_$(K_SIZE) $(REF_DIR)/$*/originaldata/framebot.fa nucl_merged_derep.fasta
+
+.SECONDEXPANSION:
+
+$(genes): bloom $$@/gene_starts.txt $$@/gene_starts.txt_nucl.fasta $$@/nucl_merged_derep.fasta
+	cd $(WORKDIR) 
+
+$(WORKDIR)/$(NAME)/uniq_starts.txt: $(WORKDIR)/$(NAME)/starts.txt
+	cd $(WORKDIR)/$(NAME) && (python $(REF_DIR)/pythonscripts/getUniqueStarts.py starts.txt > uniq_starts.txt) || (rm $(WORKDIR)/$(NAME)/uniq_starts.txt && false)
+
+$(WORKDIR)/$(NAME)/starts.txt: $(SEQFILE)
+	(mkdir -p $(WORKDIR)/$(NAME) && cd $(WORKDIR)/$(NAME) && java -jar $(JAR_DIR)/KmerFilter.jar fast_kmer_filter -a -o starts.txt -t 1 $(K_SIZE) $(SEQFILE) $(foreach gene,$(genes),$(gene)=$(REF_DIR)/$(gene)/ref_aligned.faa)) || (rm $(WORKDIR)/$(NAME)/starts.txt && false)
+
+
+clean:
+	for gene in $(genes); do rm -rf $(WORKDIR)/$(NAME)/$$gene ; done;
+	- (rm $(WORKDIR)/$(NAME)/starts.txt $(WORKDIR)/$(NAME)/uniq_starts.txt)
+
+very_clean: clean
+	- (rm -rf $(WORKDIR)/$(NAME))
+
+trim: trimmed_reads.fasta
+
+trimmed_reads.fasta:
+	cd $(WORKDIR) && java -cp $(JAR_DIR)/ReadSeq.jar edu.msu.cme.rdp.readseq.utils.QualityTrimmer -i '#' $(SEQFILE)
+
+
+## UNUSED
+#setup: glowing_sakana/.gitignore py_virtenv/bin/activate
+
+glowing_sakana/.gitignore: 
+	git submodule init && git submodule update
+
+py_virtenv/bin/activate:
+	virtualenv --no-site-packages --python python2.7 py_virtenv && source py_virtenv/bin/activate && pip install numpy && pip install matplotlib && pip install biopython
+
