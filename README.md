@@ -8,8 +8,9 @@
 * GNU Make (optional)
 
 ## Per Gene Preparation:
-    Reference Set Selection - Select a set of reference sequences (resouce: http://fungene.cme.msu.edu/) representative of the gene of interest.  More diversity is better, more sequences means more starting points (more computational time) but less suceptiable to noise than model creation.
-    Model Construction - HMMs can be built using HMMER3 (models are expected to be in HMMER3/b format).  A forward and reverse model (left and right) must be built.  The reverse model is built simply by reversing the seed alignment (using script pythonscripts/reverse.py) and running hmmbuild again.
+
+Reference Set Selection: Select a set of reference sequences (resouce: http://fungene.cme.msu.edu/) representative of the gene of interest.  More diversity is better, more sequences means more starting points (more computational time) but less suceptiable to noise than model creation.
+Model Construction: HMMs can be built using HMMER3 (models are expected to be in HMMER3/b format).  A forward and reverse model (left and right) must be built.  The reverse model is built simply by reversing the seed alignment (using script pythonscripts/reverse.py) and running hmmbuild again.
 
 ## Gene Analysis Directories
 
@@ -37,7 +38,6 @@ The size of the bloom filter (or memory needed) is approximately 2^FILTER_SIZE b
 
 ### Suggested Workflow if using Makefile
 
-While you can type 
 ```
 bash
 cp Makefile_skel Makefile
@@ -45,7 +45,7 @@ cp Makefile_skel Makefile
 
 some steps steps can be run in parallel as suggested below
 
-1. 
+1. Build Bloom filter
     a. Building the bloom filter (once per dataset)
 ```
 	bash
@@ -83,8 +83,8 @@ make <gene_name>
 * LIMIT_IN_SECS=100 -- number of seconds a search allowed for each kmer, recommend 100 secs for 1 shortest path, need to increase if PATHS is greater than 11
 
 ### Contig Filtering Parameters
-MIN_BITS=50 --mimimum assembled contigs bit score
-MIN_LENGTH=150  -- minimum assembled protein contigs
+* MIN_BITS=50 --mimimum assembled contigs bit score
+* MIN_LENGTH=150  -- minimum assembled protein contigs
 
 ### Other Paths
 * JAR_DIR -- Path to jar files for Xander/ReadSeq/FrameBot/KmerFilter (included in repository)
