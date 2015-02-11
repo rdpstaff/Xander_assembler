@@ -11,26 +11,28 @@
 
 Reference Set Selection: Select a set of reference sequences (resouce: http://fungene.cme.msu.edu/) representative of the gene of interest.  More diversity is better, more sequences means more starting points (more computational time) but less suceptiable to noise than model creation.
 
-Model Construction: A script in bin/prepare_gene_ref.sh is provided to build forward and reverse models (left and right) using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0 which is tuned to detect close othologs.
-
-### Build specialized forward and reverse HMMs 
-* Input: a small set of aligned seed sequences (using original HMMER3 program and HMMs from FunGene)
-* Output: forward and reverse HMMs for Xander 
-
-## Gene Analysis Directories
+### Gene Analysis Directories
 
 Reference sequence files and models for each gene targeted for assembly are placed in a directory in the main analysis directory.  Included with the skeleton analysis pipeline are configurations for assembling rplB, and nitrogen cycling genes such as nirK, nifH and amoA genes.
 
-A gene analysis directory must contain two hidden markov models built with HMMER3 named for_enone.hmm and rev_enone.hmm for the forward and reverse of the gene sequences respectively.  Also a ref_aligned.faa file must contain a set of protein reference sequences aligned with for_enone.hmm.  This file is used to identify starting kmers for assembly. 
-A file framebot.fa containing a set of protein reference sequences is also need for FrameBot to find the nearest matches for the assembled contigs.
-A file nucl.fa containing a set of nucleotide reference sequences to be used by UCHIME chimera check.
+* A gene analysis directory must contain two hidden markov models built with HMMER3 named for_enone.hmm and rev_enone.hmm for the forward and reverse of the gene sequences respectively.
+* A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm.  This file is used to identify starting kmers for assembly. 
+* A file framebot.fa containing a set of protein reference sequences is also need for FrameBot to find the nearest matches for the assembled contigs.
+* A file nucl.fa containing a set of nucleotide reference sequences to be used by UCHIME chimera check.
 
-The analysis pipeline will attempt to assemble all genes specified in the bin/run_xander_skel.sh, which requires a directory for each gene name with the above structure.  See the existing gene directories for further examples.
+Model Construction: A script in bin/prepare_gene_ref.sh is provided to build forward and reverse models (left and right) using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0 whi
+ch is tuned to detect close othologs.
+
+### Build specialized forward and reverse HMMs
+* Input: a small set of aligned seed sequences (using original HMMER3 program and HMMs from FunGene)
+* Output: forward and reverse HMMs for Xander
 
 ## Analysis
 
+The analysis pipeline will attempt to assemble all genes specified in the bin/run_xander_skel.sh, which requires a directory for each gene name with the above structure.  See the existing gene directories for further examples.
+
 ### Quickstart using shell script
-Using testdata as an example. Edit testdata/run_xander.sh variables SEQFILE, WORKDIR, REF_DIR and JAR_DIR to be the absolute paths, adjust the De Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size,
+Using testdata as an example. Edit testdata/run_xander.sh path variables to be the absolute paths in your system. For your samples, need to adjust the de Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size.
 ```
 bash
 cd testdata
@@ -43,7 +45,8 @@ The size of the bloom filter (or memory needed) is approximately 2^FILTER_SIZE b
 
 ### Xander Assembly Steps 
 
-some steps steps can be run in parallel as suggested below
+Some steps steps can be run in parallel as suggested below
+
 1. Build de Brujin graph
 ```
 * Input: read files
