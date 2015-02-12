@@ -1,0 +1,32 @@
+108,110c108,110
+<   pri->tm->alpha[0][0] = 0.7939; /* TMM */
+<   pri->tm->alpha[0][1] = 0.0278; /* TMI */ /* Markus suggests ~10x MD, ~0.036; test! */
+<   pri->tm->alpha[0][2] = 0.0135; /* TMD */ /* Markus suggests 0.1x MI, ~0.004; test! */
+---
+>   pri->tm->alpha[0][0] = 0.960;//0.7939; /* TMM */
+>   pri->tm->alpha[0][1] = 0.036;//0.0278; /* TMI */ /* Markus suggests ~10x MD, ~0.036; test! */
+>   pri->tm->alpha[0][2] = 0.004;//0.0135; /* TMD */ /* Markus suggests 0.1x MI, ~0.004; test! */
+113,114c113,114
+<   pri->ti->alpha[0][0] = 0.1551; /* TIM */
+<   pri->ti->alpha[0][1] = 0.1331; /* TII */
+---
+>   pri->ti->alpha[0][0] = 0.95;//0.1551; /* TIM */
+>   pri->ti->alpha[0][1] = 0.05;//0.1331; /* TII */
+117,118c117,118
+<   pri->td->alpha[0][0] = 0.9002; /* TDM */
+<   pri->td->alpha[0][1] = 0.5630; /* TDD */
+---
+>   pri->td->alpha[0][0] = 0.95;//0.9002; /* TDM */
+>   pri->td->alpha[0][1] = 0.05;//0.5630; /* TDD */
+278,279c278,279
+<   pri->ti->alpha[0][0] = 0.06; // TIM
+<   pri->ti->alpha[0][1] = 0.2; // TII
+---
+>   pri->ti->alpha[0][0] = 0.95;//0.06; // TIM
+>   pri->ti->alpha[0][1] = 0.05;//0.2; // TII
+282,283c282,283
+<   pri->td->alpha[0][0] = 0.1; // TDM
+<   pri->td->alpha[0][1] = 0.2; // TDD
+---
+>   pri->td->alpha[0][0] = 0.95;//0.1; // TDM
+>   pri->td->alpha[0][1] = 0.05;//0.2; // TDD

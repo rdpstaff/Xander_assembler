@@ -17,16 +17,24 @@ Reference sequence files and models for each gene targeted for assembly are plac
 
 Reference Set Selection: Select a set of reference sequences (resource: http://fungene.cme.msu.edu/) representative of the gene of interest. More diversity is better, more sequences means more starting points (more computational time) but less susceptible to noise than model creation.
 
-A subdirectory originaldata should be created inside each gene directory, four files are required for preparing HMMs and post processing:
+A subdirectory originaldata should be created inside each gene directory, four files are required for preparing HMMs and post-assembly processing:
 * gene.seeds: a small set of protein sequences in FASTA format, used to build gene.hmm, forward and reverse HMMs. Can be downloaded from FunGene (http://fungene.cme.msu.edu).
 * gene.hmm: this is the HMM built from gene.seeds using original HMMER3. This is used to build for_enone.hmm and align contigs after assembly. Can be downloaded from FunGene.
 * framebot.fa: a large near full length known protein set for identifying start kmers and FrameBot nearest matching. More diversity is better, more sequences means more starting points (more computational time) but less susceptible to noise than model creation. Prefer near full-length and well-annotated sequences. Filter with Minimum HMM Coverage at least 80 (%). 
 * nucl.fa: a large near full length known set used by UCHIME chimera check. 
 
-The gene directory must the following three file for assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0 which is tuned to detect close orthologs. The output will be written to the gene directory.
+The gene directory must have three file for assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0 which is tuned to detect close orthologs. The output will be written to the gene directory.
 * for_enone.hmm and rev_enone.hmm for the forward and reverse HMMs respectively. This is used to assemble gene contigs.
 * A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. 
 
+How to apply Xander patch to hmmer-3.0?
+```
+* Download hmmer-3.0.tar.gz from ftp://selab.janelia.org/pub/software/hmmer3/3.0/
+* Unzip and untar hmmer-3.0.tar.gz, you will get a directory called hmmer-3.0. Rename hmmer-3.0 to hmmer-3.0_xanderpatch.
+* Apply the patch file using the patch file hmmer-3.0_Xander_patch.txt:
+  patch hmmer-3.0_xanderpatch/src/p7_prior.c < Xander_assembler/bin/hmmer-3.0_Xander_patch.txt
+* Follow the instructions from hmmer-3.0_xanderpatch/INSTALL to install.
+```
 
 ## Xander Assembly Analysis
 
