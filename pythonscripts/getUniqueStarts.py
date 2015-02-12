@@ -3,6 +3,8 @@ import sys
 import os
 from operator import itemgetter, attrgetter
 
+kmerset = dict()
+
 def sortStartKmer(data):
 	starts = []
 	for line in data:
@@ -15,7 +17,6 @@ def sortStartKmer(data):
 	
 def getUnique(startsfile):
 
-	kmerset = dict()
 	infile = open(startsfile, "r")
 	lines = infile.readlines()
 	infile.close()
@@ -29,7 +30,12 @@ def getUnique(startsfile):
 	return kmerset.values()
 
 if __name__ == "__main__":
-	ret = getUnique(sys.argv[1])
+	usage = "Usage: starts.txt starts.txt ... > uniq_starts.txt"
+	if len(sys.argv) < 2:
+		sys.exit("need at least one input file. " + usage);
+	for infile in sys.argv[1:]:
+		getUnique(infile)
+	ret = kmerset.values()
 	sort_data = sortStartKmer(ret)
 	for s in sort_data:
 		print "%s" %(s[0])
