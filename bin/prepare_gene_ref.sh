@@ -1,4 +1,5 @@
 #!/bin/bash -login
+set -e
 
 if [ $# -ne 1 ]; then
         echo Usage: gene 
@@ -6,10 +7,10 @@ if [ $# -ne 1 ]; then
 fi
 
 ## THIS MUST BE MODIFIED TO YOUR FILE SYSTEM
-JAR_DIR=/RDPTools/
+JAR_DIR=~/Documents/software/gits/RDPTools/
 
 ## NOTE you need to used the modified hmmer-3.0_xanderpatch to build the specialized forward and reverse HMMs for Xander 
-hmmer-3.0_xanderpatch=/RDPTools/hmmer-3.0_xanderpatch/
+hmmer_xanderpatch=/mnt/research/rdp/public/thirdParty/hmmer-3.0_xanderpatch/
 
 gene=$1
 
@@ -30,8 +31,8 @@ gene=$1
 cd ${JAR_DIR}/Xander_assembler/${gene}/originaldata
 
 ## create forward and reverse hmms for Xander.
-${hmmer-3.0_xanderpatch}/src/hmmalign --allcol -o ${gene}_seeds_aligned.stk ${gene}.hmm ${gene}.seeds
-${hmmer-3.0_xanderpatch}/src/hmmbuild --enone ../for_enone.hmm ${gene}_seeds_aligned.stk
+${hmmer_xanderpatch}/src/hmmalign --allcol -o ${gene}_seeds_aligned.stk ${gene}.hmm ${gene}.seeds
+${hmmer_xanderpatch}/src/hmmbuild --enone ../for_enone.hmm ${gene}_seeds_aligned.stk
 
 java -jar ${JAR_DIR}/ReadSeq.jar to-fasta ${gene}_seeds_aligned.stk > ${gene}_seeds_aligned.fasta
 
