@@ -123,6 +123,7 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
 ```
 
 * Beta diversity analysis
+
 A script in bin/get_OTUabundance.sh is provided to create coverage-adjusted OTU abundance data matrix from contigs of same gene from multiple samples. The data matrix can then imported to R or PhyloSeq for more extensive analysis and visualization functions (see http://rdp.cme.msu.edu/tutorials/stats/RDPtutorial_statistics.html)
 ```
  * Input 1: aligned protein contig files (final_prot_aligned.fasta)
