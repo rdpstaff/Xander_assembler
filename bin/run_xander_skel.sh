@@ -14,7 +14,7 @@
 #       SEQFILE, genes, SAMPLE_SHORTNAME
 #       WORKDIR, REF_DIR, JAR_DIR, UCHIME, HMMALIGN
 #       FILTER_SIZE, MAX_JVM_HEAP, K_SIZE
-#       THREADS
+#       THREADS, ppn
 #####################
 
 ## THIS SECTION MUST BE MODIFIED FOR YOUR FILE SYSTEM. MUST BE ABSOLUTE PATH
@@ -37,7 +37,7 @@ FILTER_SIZE=32 # memory = 2**FILTER_SIZE, 38 = 32 GB, 37 = 16 GB, 36 = 8 GB, 35 
 MAX_JVM_HEAP=2G # memory for java program, must be larger than the corresponding memory of the FILTER_SIZE
 MIN_COUNT=1  # minimum kmer abundance in SEQFILE to be included in the final de Bruijn graph structure
 
-## Find Starting Kmers
+## ppn should be THREADS +1
 THREADS=1
 
 ## Contig Search Parameters
