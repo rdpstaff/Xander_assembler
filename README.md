@@ -11,6 +11,8 @@
 ### Citation
 Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Xander: gene-targeted metagenomic assembler. Submitted.
 
+Presentation about Xander can be found in http://rdp.cme.msu.edu/download/posters/Xander_assembler_022015.pdf
+
 ### Per Gene Preparation:
 
 Reference sequence files and models for each gene targeted for assembly are placed in a gene ref directory inside the Xander_assembler directory. The analysis pipeline is preconfigured with _rplB_ gene, and nitrogen cycling genes including _nirK_, _nirS_, _nifH_, _nosZ_ and _amoA_.
