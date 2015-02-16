@@ -6,7 +6,7 @@ if [ $# -ne 1 ]; then
 fi
 
 ## THIS MUST BE MODIFIED TO YOUR FILE SYSTEM
-JAR_DIR=/mnt/research/rdp/private/Qiong_xander_analysis/RDPTools/
+JAR_DIR=/mnt/research/rdp/public/RDPTools/
 
 ## NOTE you need to used the modified hmmer-3.0_xanderpatch to build the specialized forward and reverse HMMs for Xander 
 hmmer-3.0_xanderpatch=/mnt/research/rdp/public/thirdParty/hmmer-3.0_xanderpatch/
