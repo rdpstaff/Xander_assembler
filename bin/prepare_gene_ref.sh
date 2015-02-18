@@ -7,9 +7,10 @@ fi
 
 ## THIS MUST BE MODIFIED TO YOUR FILE SYSTEM
 JAR_DIR=/mnt/research/rdp/public/RDPTools/
+REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler
 
 ## NOTE you need to used the modified hmmer-3.0_xanderpatch to build the specialized forward and reverse HMMs for Xander 
-hmmer-3.0_xanderpatch=/mnt/research/rdp/public/thirdParty/hmmer-3.0_xanderpatch/
+hmmer_xanderpatch=/mnt/research/rdp/public/thirdParty/hmmer-3.0_xanderpatch/
 
 gene=$1
 
@@ -27,20 +28,20 @@ gene=$1
 ## ref_aligned.faa will be used by Xander find starting kmer step
 
 
-cd ${JAR_DIR}/Xander_assembler/${gene}/originaldata
+cd ${REF_DIR}/${gene}/originaldata || { echo " directory not found" ;  exit 1; }
 
 ## create forward and reverse hmms for Xander.
-${hmmer-3.0_xanderpatch}/src/hmmalign --allcol -o ${gene}_seeds_aligned.stk ${gene}.hmm ${gene}.seeds
-${hmmer-3.0_xanderpatch}/src/hmmbuild --enone ../for_enone.hmm ${gene}_seeds_aligned.stk
+${hmmer_xanderpatch}/src/hmmalign --allcol -o ${gene}_seeds_aligned.stk ${gene}.hmm ${gene}.seeds
+${hmmer_xanderpatch}/src/hmmbuild --enone ../for_enone.hmm ${gene}_seeds_aligned.stk
 
 java -jar ${JAR_DIR}/ReadSeq.jar to-fasta ${gene}_seeds_aligned.stk > ${gene}_seeds_aligned.fasta
 
 python ${JAR_DIR}/Xander_assembler/pythonscripts/reverse.py ${gene}_seeds_aligned.fasta
 java -jar ${JAR_DIR}/ReadSeq.jar to-stk -r rev_${gene}_seeds_aligned.fasta rev_${gene}_seeds_aligned.stk
 
-${hmmer-3.0_xanderpatch}/src/hmmbuild --enone ../rev_enone.hmm rev_${gene}_seeds_aligned.stk
+${hmmer_xanderpatch}/src/hmmbuild --enone ../rev_enone.hmm rev_${gene}_seeds_aligned.stk
 
-${hmmer-3.0_xanderpatch}/src/hmmalign --allcol -o ref_aligned.stk ../for_enone.hmm framebot.fa
+${hmmer_xanderpatch}/src/hmmalign --allcol -o ref_aligned.stk ../for_enone.hmm framebot.fa
 java -jar ${JAR_DIR}/ReadSeq.jar to-fasta ref_aligned.stk > ../ref_aligned.faa
 
 rm *stk ${gene}_seeds_aligned.fasta rev_${gene}_seeds_aligned.fasta
