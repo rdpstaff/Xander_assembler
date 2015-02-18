@@ -1,5 +1,9 @@
 ## Xander Gene-targeted Metagenomic Assembler Analysis Pipeline
 
+Metagenomics can provide important insight into microbial communities. However, assembling metagenomic datasets has proven to be computationally challenging. We present a novel method for targeting assembly of specific protein-coding genes using a graph structure combining both de Bruijn graphs and protein HMMs. The inclusion of HMM information guides the assembly, with concomitant gene annotation. 
+
+We have been using Xander to assemble contigs for both phylogenetic marker gene and functional marker genes from soil metegenomic data ranging from 5 GB to 350 GB. In our test, Xander produced more, longer, and higher-quality gene sequences than a recently published bulk metagenome assembly method. Xander can detect low-abundance genes and low-abundance organisms. HMMs can be tailored to the targeted genes, allowing flexibility to improve annotation over generic annotation pipelines.
+
 ### Required tools
 
 * RDPTools (https://github.com/rdpstaff/RDPTools)
