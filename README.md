@@ -29,7 +29,8 @@ A subdirectory originaldata should be created inside each gene ref directory, fo
 
 The gene ref directory must have three files for Xander assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0. The modified version is tuned to detect close orthologs. Three output files will be written to the gene ref directory:
 * for_enone.hmm and rev_enone.hmm for the forward and reverse HMMs respectively. This is used to assemble gene contigs.
-* A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. 
+* A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. Need to manually examine the alignment using Jalview or alignment viewing tool to spot any badly aligned sequences. If found, it is likely there are no sequences in gene.seeds close these sequences. You need to valide these problem sequences to see they are from the gene you are interested, then either remoe them or add some representative sequences to gene.seeds and repeat the prepartion steps.
+
 
 How to apply Xander patch to hmmer-3.0?
 ```
@@ -128,7 +129,7 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
  * Output: taxonomic abundance adjusted by coverage, group by lineage (phylum/class) (taxonabund.txt)
 ```
 
-* Beta diversity analysis
+* Beta diversity analysis (This step is not included in run_xander_skel.sh )
 
 A script in bin/get_OTUabundance.sh is provided to create coverage-adjusted OTU abundance data matrix from contigs of same gene from multiple samples. The data matrix can then imported to R or PhyloSeq for more extensive analysis and visualization functions (see http://rdp.cme.msu.edu/tutorials/stats/RDPtutorial_statistics.html)
 ```
