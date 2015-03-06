@@ -75,7 +75,7 @@ Each step can be run separately. Some steps can be run in parallel as suggested 
  * Output: starting nucleotide kmers (gene_starts.txt for each gene)
 ```
 
-* Assemble contigs (each gene can be done in parallel, for each starting kmer, find the best path from both directions and then merge)
+* Assemble contigs (each gene can be done in parallel, length cutoff or HMM score cutoff filters are used)
 ```
  * Input 1: forward and reverse HMMs (for_enone.hmm and rev_enone.hmm)
  * Input 2: de Bruijn graph (k45.bloom)
@@ -98,8 +98,8 @@ Each step can be run separately. Some steps can be run in parallel as suggested 
  * Input 1: representative nucleotide contigs (nucl_rep_seqs.fasta)
  * Input 2: gene nucleotide reference set (originaldata/nucl.fa from gene ref directory)
  * Output 1: UCHIME output (result_uchimealn.txt, results.uchime.txt)
- * Output 2: chimera_removed nucleotide representative contigs (final_nucl.fasta)
- * Output 3: chimera_removed protein representative contigs (final_prot.fasta and final_prot_aligned.fasta)
+ * Output 2: quality_filtered nucleotide representative contigs (final_nucl.fasta)
+ * Output 3: quality_filtered protein representative contigs (final_prot.fasta and final_prot_aligned.fasta)
 ```
 
 Note: the quality-filtered contigs in final_nucl.fasta, final_prot.fasta and final_prot_aligned.fasta should be used as the final set of contigs assembled by Xander.
@@ -108,14 +108,14 @@ The following post-assembly analysis are included in run_xander_skel.sh.
 
 * Nearest reference matches (RDP FrameBot https://github.com/rdpstaff/Framebot, can also use RDP Protein Seqmatch)
 ```
- * Input 1: chimera_removed nucleotide representative contigs (final_nucl.fasta)
+ * Input 1: quality_filtered nucleotide representative contigs (final_nucl.fasta)
  * Input 2: gene protein reference set (originaldata/framebot.fa from gene ref directory)
  * Outputs: the nearest reference seq and % aa identity (framebot.txt)
 ```
 
-* Read mapping and kmer abundance (RDP KmerFilter, multithread option)
+* Read mapping, contig coverage and kmer abundance (RDP KmerFilter, multithread option)
 ```
- * Input 1: chimera_removed nucleotide representative contigs (final_nucl.fasta)
+ * Input 1: quality_filtered nucleotide representative contigs (final_nucl.fasta)
  * Input 2: read files
  * Output 1: contig coverage (coverage.txt, can be used to estimate gene abundance and adjust sequence abundance)
  * Output 2: kmer abundance (abundance.txt)
