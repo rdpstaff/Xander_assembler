@@ -63,12 +63,12 @@ Each step can be run separately. Some steps can be run in parallel as suggested 
 
 * Build de Bruijn graph, only once for each dataset at given kmer length 
 ```
- * Input: read files (fasta, fataq or gz format)
+ * Input: read files (fasta, fastq or gz format)
  * Output 1: de Bruijn graph (k45.bloom) 
  * Output 2: bloom file stats (k45_bloom_stat.txt). Check the "Predicted false positive rate" in this file (see How to choose the FILTER_SIZE below).
 ```
 
-* Identify starting kmers (multiple genes should be run together to save time; can be multithreaded )
+* Identify starting kmers (multiple genes should be run together to save time; multithread option)
 ```
  * Input 1: ref_aligned.faa files from gene ref directories  
  * Input 2: read files
@@ -84,10 +84,6 @@ Each step can be run separately. Some steps can be run in parallel as suggested 
  * Output 2: merged nucleotide contigs (nucl_merged.fasta)
  * Output 3: unmerged nucleotide and protein contigs (gene_starts.txt_nucl.fasta and gene_starts.txt_prot.fasta)
 ```
-
-Post-assembly processing included in run_xander_skel.sh. The Clustering and Chimera removal steps are neccesary to remove contigs with minor variations and chimeric seqs. 
-
-Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_aligned.fasta as the final set of contigs assembled by Xander.
 
 * Cluster (RDP mcClust https://github.com/rdpstaff/Clustering. Longest contigs are chosen as the representative contigs )
 ```
@@ -106,6 +102,10 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
  * Output 3: chimera_removed protein representative contigs (final_prot.fasta and final_prot_aligned.fasta)
 ```
 
+Note: the quality-filtered contigs in final_nucl.fasta, final_prot.fasta and final_prot_aligned.fasta should be used as the final set of contigs assembled by Xander.
+
+The following post-assembly analysis are included in run_xander_skel.sh. 
+
 * Nearest reference matches (RDP FrameBot https://github.com/rdpstaff/Framebot, can also use RDP Protein Seqmatch)
 ```
  * Input 1: chimera_removed nucleotide representative contigs (final_nucl.fasta)
@@ -113,7 +113,7 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
  * Outputs: the nearest reference seq and % aa identity (framebot.txt)
 ```
 
-* Read mapping and kmer abundance (RDP KmerFilter can be multithreaded)
+* Read mapping and kmer abundance (RDP KmerFilter, multithread option)
 ```
  * Input 1: chimera_removed nucleotide representative contigs (final_nucl.fasta)
  * Input 2: read files
@@ -121,7 +121,7 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
  * Output 2: kmer abundance (abundance.txt)
 ```
 
-* Taxonomic grouping
+* Taxonomic abundance 
 ```
  * Input 1: contig coverage (coverage.txt)
  * Input 2: the nearest reference seq (framebot.txt) 
@@ -129,7 +129,7 @@ Note: One should use the final_nucl.fasta, final_prot.fasta and final_prot_align
  * Output: taxonomic abundance adjusted by coverage, group by lineage (phylum/class) (taxonabund.txt)
 ```
 
-* Beta diversity analysis (This step is not included in run_xander_skel.sh )
+* Beta diversity analysis (not included in run_xander_skel.sh but can be done using a separate script)
 
 A script in bin/get_OTUabundance.sh is provided to create coverage-adjusted OTU abundance data matrix from contigs of same gene from multiple samples. The data matrix can then imported to R or PhyloSeq for more extensive analysis and visualization functions (see http://rdp.cme.msu.edu/tutorials/stats/RDPtutorial_statistics.html)
 ```
