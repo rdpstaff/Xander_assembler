@@ -21,6 +21,8 @@ else:
 	ret_mode = "xml"
 
 print ret_mode
+if not os.path.exists(out_dir):
+	os.makedirs(out_dir)
 
 for id in open(id_file):
 	id = id.strip()

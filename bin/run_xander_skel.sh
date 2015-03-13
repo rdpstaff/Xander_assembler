@@ -6,7 +6,7 @@
 #PBS -m abe
 
 ##### EXAMPLE: qsub command on MSU HPCC
-# qsub -l walltime=1:00:00,mem=2GB -v MAX_JVM_HEAP=2G,FILTER_SIZE=32,K_SIZE=45,genes="nifH nirK rplB amoA_AOA",THREADS=1,SAMPLE_SHORTNAME=test,WORKDIR=/PATH/testdata/,SEQFILE=/PATH/testdata/test_reads.fa qsub_run_xander.sh
+# qsub -l walltime=1:00:00,nodes=01:ppn=2,mem=2GB -v MAX_JVM_HEAP=2G,FILTER_SIZE=32,K_SIZE=45,genes="nifH nirK rplB amoA_AOA",THREADS=1,SAMPLE_SHORTNAME=test,WORKDIR=/PATH/testdata/,SEQFILE=/PATH/testdata/test_reads.fa qsub_run_xander.sh
 
 #### start of configuration
 
@@ -19,12 +19,13 @@
 
 ## THIS SECTION MUST BE MODIFIED FOR YOUR FILE SYSTEM. MUST BE ABSOLUTE PATH
 ## SEQFILE can use wildcards to point to multiple files (fasta, fataq or gz format), as long as there are no spaces in the names
-SEQFILE=/RDPTools/Xander_assembler/testdata/test_reads.fa
-WORKDIR=/RDPTools/Xander_assembler/testdata
-REF_DIR=/RDPTools/Xander_assembler
-JAR_DIR=/RDPTools/
+SEQFILE=/mnt/research/rdp/public/RDPTools/Xander_assembler/testdata/test_reads.fa
+WORKDIR=/mnt/research/rdp/public/RDPTools/Xander_assembler/testdata
+REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler
+JAR_DIR=/mnt/research/rdp/public/RDPTools/
 UCHIME=/mnt/research/rdp/public/thirdParty/uchime-4.2.40/uchime
 HMMALIGN=/opt/software/HMMER/3.1b1--GCC-4.4.5/bin/hmmalign
+
 
 ## THIS SECTION NEED TO BE MODIFIED FOR GENES INTERESTED, and SAMPLE_SHORTNAME WILL BE THE PREFIX OF CONTIG ID
 genes=(nifH nirK rplB amoA_AOB amoA_AOA nirS nosZ)
@@ -56,7 +57,7 @@ NAME=k${K_SIZE}
 
 #### end of configuration
 
-mkdir -p ${WORKDIR}/${NAME}
+mkdir -p ${WORKDIR}/${NAME} || { echo "mkdir -p ${WORKDIR}/${NAME} failed"; exit 1;}
 cd ${WORKDIR}/${NAME}
 
 ## build bloom filter, this step takes time, not multithreaded yet, wait for future improvement
@@ -114,7 +115,7 @@ for gene in ${genes_to_assembly[*]}
 do
         cd ${WORKDIR}/${NAME}/${gene}
         ## the starting kmer might be empty for this gene, continue to next gene
-        grep ${gene} ../uniq_starts.txt > gene_starts.txt || { echo "get uniq starting kmers failed for ${gene}" ; rm gene_starts.txt; continue; }
+        grep -w "^${gene}" ../uniq_starts.txt > gene_starts.txt || { echo "get uniq starting kmers failed for ${gene}" ; rm gene_starts.txt; continue; }
 done
 
 
@@ -126,7 +127,7 @@ for gene in ${genes_to_assembly[*]}
 do
 	cd ${WORKDIR}/${NAME}/${gene}
 	## the starting kmer might be empty for this gene, continue to next gene
-	if [ ! -f gene_starts.txt ]; then
+	if [ ! -s gene_starts.txt ]; then
 		continue;
 	fi
 	echo "### Search contigs ${gene}"
@@ -134,7 +135,7 @@ do
 	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/${gene}/for_enone.hmm ${REF_DIR}/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt || { echo "search contigs failed for ${gene}" ; exit 1; }
 
 	## merge contigs 
-	if [ ! -f gene_starts.txt_nucl.fasta ]; then
+	if [ ! -s gene_starts.txt_nucl.fasta ]; then
            continue;
         fi
 	echo "### Merge contigs"
@@ -144,12 +145,12 @@ do
 	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta || { echo "merge contigs failed for ${gene}" ; exit 1;}
 
 	## get the unique merged contigs
-	if [ ! -f prot_merged.fasta ]; then
+	if [ ! -s prot_merged.fasta ]; then
            continue;
         fi
 	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/Clustering.jar derep -o temp_prot_derep.fa  ids samples prot_merged.fasta || { echo "get unique contigs failed for ${gene}" ; continue; }
         java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/ReadSeq.jar rm-dupseq -d -i temp_prot_derep.fa -o ${fileprefix}_prot_merged_rmdup.fasta || { echo "get unique contigs failed for ${gene}" ; continue; }
-        rm prot_merged.fa temp_prot_derep.fa ids samples
+        rm prot_merged.fasta temp_prot_derep.fa ids samples
 
 	## cluster at 99% aa identity
 	echo "### Cluster"
@@ -166,30 +167,34 @@ do
 	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar derep -o derep.fa -m '#=GC_RF' ids samples aligned.fasta || { echo "derep failed" ;  exit 1; }
 
 	## if there is no overlap between the contigs, mcClust will throw errors, we should use the ../prot_merged_rmdup.fasta as  prot_rep_seqs.fasta 
-	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar dmatrix  -c 0.5 -I derep.fa -i ids -l 25 -o dmatrix.bin || { echo "dmatrix failed" ; cp ../${fileprefix}_prot_merged_rmdup.fasta ${fileprefix}_prot_rep_seqs.fasta ; }
+	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar dmatrix  -c 0.5 -I derep.fa -i ids -l 25 -o dmatrix.bin || { echo "dmatrix failed, continue with ${fileprefix}_prot_merged_rmdup.fasta" ; cp ../${fileprefix}_prot_merged_rmdup.fasta ${fileprefix}_prot_rep_seqs.fasta ; }
 
-	if [ -f dmatrix.bin ]; then
+	if [ -s dmatrix.bin ]; then
 		java -Xmx2g -jar ${JAR_DIR}/Clustering.jar cluster -d dmatrix.bin -i ids -s samples -o complete.clust || { echo "cluster failed" ;  exit 1; }
 
         	# get representative seqs
         	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar rep-seqs -l -s complete.clust ${DIST_CUTOFF} aligned.fasta || { echo " rep-seqs failed" ;  exit 1; }
         	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar to-unaligned-fasta complete.clust_rep_seqs.fasta > ${fileprefix}_prot_rep_seqs.fasta || { echo " to-unaligned-fasta failed" ;  exit 1; }
+		rm dmatrix.bin complete.clust_rep_seqs.fasta
         fi
 
 
 	grep '>' ${fileprefix}_prot_rep_seqs.fasta |cut -f1 | cut -f1 -d ' ' | sed -e 's/>//' > id || { echo " failed" ;  exit 1; }
-	java -Xmx2g -jar ${JAR_DIR}/Clustering.jar filter-seqs id ../nucl_merged.fasta false > ${fileprefix}_nucl_rep_seqs.fasta || { echo " filter-seqs failed" ;  exit 1; }
+	java -Xmx2g -jar ${JAR_DIR}/ReadSeq.jar select-seqs id ${fileprefix}_nucl_rep_seqs.fasta fasta Y ../nucl_merged.fasta || { echo " filter-seqs failed" ;  exit 1; }
 
-	rm -r derep.fa dmatrix.bin nonoverlapping.bin alignment samples ids complete.clust_rep_seqs.fasta id
+	rm -r derep.fa nonoverlapping.bin alignment samples ids id
 
-	echo "Chimera removal"
+	echo "### Chimera removal"
 	# remove chimeras and obtain the final good set of nucleotide and protein contigs
         ${UCHIME} --input ${fileprefix}_nucl_rep_seqs.fasta --db ${REF_DIR}/${gene}/originaldata/nucl.fa --uchimeout results.uchime.txt -uchimealns result_uchimealn.txt || { echo "chimera check failed" ;  continue; }
         egrep '\?$|Y$' results.uchime.txt | cut -f2 | cut -f1 -d ' ' | cut -f1 > chimera.id || { echo " egrep failed" ;  exit 1; }
-        java -Xmx2g -jar ${JAR_DIR}/Clustering.jar filter-seqs chimera.id ${fileprefix}_nucl_rep_seqs.fasta true > ${fileprefix}_final_nucl.fasta || { echo " filter-seqs failed" ;  exit 1; }
+	java -Xmx2g -jar ${JAR_DIR}/ReadSeq.jar select-seqs chimera.id ${fileprefix}_final_nucl.fasta fasta N ${fileprefix}_nucl_rep_seqs.fasta || { echo " select-seqs ${fileprefix}_nucl_rep_seqs.fasta failed" ; exit 1; }
 
-	grep '>' ${fileprefix}_final_nucl.fasta | sed -e 's/>//' > id; java -Xmx2g -jar ${JAR_DIR}/Clustering.jar filter-seqs id ../${fileprefix}_prot_merged_rmdup.fasta false > ${fileprefix}_final_prot.fasta;  echo '#=GC_RF' >> id; java -Xmx2g -jar ${JAR_DIR}/Clustering.jar filter-seqs id aligned.fasta false > ${fileprefix}_final_prot_aligned.fasta; rm id || { echo " filter-seqs failed" ; rm id; exit 1; }
+        grep '>' ${fileprefix}_final_nucl.fasta | sed -e 's/>//' > id; java -Xmx2g -jar ${JAR_DIR}/ReadSeq.jar select-seqs id ${fileprefix}_final_prot.fasta fasta Y ../${fileprefix}_prot_merged_rmdup.fasta;  echo '#=GC_RF' >> id; java -Xmx2g -jar ${JAR_DIR}/ReadSeq.jar select-seqs id ${fileprefix}_final_prot_aligned.fasta fasta Y aligned.fasta ; rm id || { echo " select-seqs failed" ; rm id; exit 1; }
 
+	if [ ! -f ${fileprefix}_final_nucl.fasta  ]; then
+                continue;
+        fi
 
         ## find the closest matches of the nucleotide representatives using FrameBot
 	echo "### FrameBot"
