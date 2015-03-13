@@ -1,8 +1,8 @@
-## Xander Gene-targeted Metagenomic Assembler Analysis Pipeline
+## Xander Gene-targeted Metagenomic Assembler 
 
 Metagenomics can provide important insight into microbial communities. However, assembling metagenomic datasets has proven to be computationally challenging. We present a novel method for targeting assembly of specific protein-coding genes using a graph structure combining both de Bruijn graphs and protein HMMs. The inclusion of HMM information guides the assembly, with concomitant gene annotation. 
 
-We have been using Xander to assemble contigs for both phylogenetic marker gene and functional marker genes from soil metegenomic data ranging from 5 GB to 350 GB. In our test, Xander produced more, longer, and higher-quality gene sequences than a recently published bulk metagenome assembly method. Xander can detect low-abundance genes and low-abundance organisms. HMMs can be tailored to the targeted genes, allowing flexibility to improve annotation over generic annotation pipelines.
+We have been using Xander to assemble contigs for both phylogenetic marker gene and functional marker genes from soil metegenomic data ranging from 5 GB to 350 GB. We compared our method to a recently published bulk metagenome assembly method and a recently published gene-targeted assembler and found our method produced more, longer and higher-quality gene sequences. Xander can detect low-abundance genes and low-abundance organisms. HMMs can be tailored to the targeted genes, allowing flexibility to improve annotation over generic annotation pipelines.
 
 ### Required tools
 
@@ -13,7 +13,7 @@ We have been using Xander to assemble contigs for both phylogenetic marker gene 
 * UCHIME (http://drive5.com/usearch/manual/uchime_algo.html)
 
 ### Citation
-Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Employing a Novel Method for Efficient Gene-Targeted Metagenomic Assembly. Submitted. 
+Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Xander: Employing a Novel Method for Efficient Gene-Targeted Metagenomic Assembly. Submitted. 
 
 Presentation about Xander can be found in http://rdp.cme.msu.edu/download/posters/Xander_assembler_022015.pdf
 
@@ -143,6 +143,7 @@ For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-
 #### Other Paths
 * JAR_DIR -- Path to jar files for Xander/ReadSeq/FrameBot/KmerFilter (from RDPTools repository)
 * REF_DIR -- Path to Xander_assembler
+
 
 ### Per Gene Preparation, requires biological insight!
 
