@@ -13,39 +13,15 @@ We have been using Xander to assemble contigs for both phylogenetic marker gene 
 * UCHIME (http://drive5.com/usearch/manual/uchime_algo.html)
 
 ### Citation
-Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Xander: gene-targeted metagenomic assembler. Submitted.
+Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Employing a Novel Method for Efficient Gene-Targeted Metagenomic Assembly. Submitted. 
 
 Presentation about Xander can be found in http://rdp.cme.msu.edu/download/posters/Xander_assembler_022015.pdf
-
-### Per Gene Preparation:
-
-Reference sequence files and models for each gene targeted for assembly are placed in a gene ref directory inside the Xander_assembler directory. The analysis pipeline is preconfigured with _rplB_ gene, and nitrogen cycling genes including _nirK_, _nirS_, _nifH_, _nosZ_ and _amoA_.
-
-A subdirectory originaldata should be created inside each gene ref directory, four files are required for preparing HMMs and post-assembly processing:
-* gene.seeds: a small set of protein sequences in FASTA format, used to build gene.hmm, forward and reverse HMMs. Can be downloaded from FunGene (http://fungene.cme.msu.edu).
-* gene.hmm: this is the HMM built from gene.seeds using original HMMER3. This is used to build for_enone.hmm and align contigs after assembly. Can be downloaded from FunGene.
-* framebot.fa: a large near full length known protein set for identifying start kmers and FrameBot nearest matching. More diversity is better, more sequences means more starting points (more computational time) but less susceptible to noise than model creation. Prefer near full-length and well-annotated sequences. Filter with Minimum HMM Coverage at least 80 (%). 
-* nucl.fa: a large near full length known set used by UCHIME chimera check. 
-
-The gene ref directory must have three files for Xander assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0. The modified version is tuned to detect close orthologs. Three output files will be written to the gene ref directory:
-* for_enone.hmm and rev_enone.hmm for the forward and reverse HMMs respectively. This is used to assemble gene contigs.
-* A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. Need to manually examine the alignment using Jalview or alignment viewing tool to spot any badly aligned sequences. If found, it is likely there are no sequences in gene.seeds close these sequences. You need to valide these problem sequences to see they are from the gene you are interested, then either remoe them or add some representative sequences to gene.seeds and repeat the prepartion steps.
-
-
-How to apply Xander patch to hmmer-3.0?
-```
-* Download hmmer-3.0.tar.gz from ftp://selab.janelia.org/pub/software/hmmer3/3.0/
-* Unzip and untar hmmer-3.0.tar.gz, you will get a directory called hmmer-3.0. Rename hmmer-3.0 to hmmer-3.0_xanderpatch.
-* Apply the patch file using the patch file hmmer-3.0_Xander_patch.txt:
-  patch hmmer-3.0_xanderpatch/src/p7_prior.c < Xander_assembler/bin/hmmer-3.0_Xander_patch.txt
-* Follow the instructions from hmmer-3.0_xanderpatch/INSTALL to install.
-```
 
 ## Xander Assembly Analysis
 
 
 ### Quickstart using shell script
-Use testdata as an example. Make a copy of bin/run_xander_skel.sh and change path variables to be the absolute paths in your system. For your samples, you may also need to adjust the de Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size. The script will attempt to assemble all genes specified in "genes" in the shell script, which requires a directory for each gene name with the above structure.
+Use testdata as an example. Make a copy of bin/run_xander_skel.sh and change path variables to be the absolute paths in your system. For your samples, you may also need to adjust the de Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size. The script will attempt to assemble all genes specified in "genes" in the shell script, which requires a gene ref directory for each gene.
 
 ```
 bash
@@ -55,7 +31,7 @@ cp ../bin/run_xander_skel.sh run_xander.sh
 ./run_xander.sh
 ```
 
-The run_xander.sh will create an assembly output directory "k45" for kmer length of 45. It makes an output directory for each gene inside "k45" and saves all the output in the gene output directory. The shell script allows to assemble genes in different batches without overwriting the existing results. For example, if nirK and rplB genes have been assembled (or at least completed the starting kmers identifying step), you would like to assemble nosZ genes. You can simply edit run_xander.sh to add "nosZ" to the list of genes and run the same command again. Note if you wnat to rebuild the bloom graph structure, you need to manually delete the .bloom file in the output directory. If you would like to rerun the assembly for a gene, you need to manually delete that gene output directory.
+The run_xander.sh will create an assembly output directory "k45" for kmer length of 45. It makes an output directory for each gene inside "k45" and saves all the output in the gene output directory. The shell script allows to assemble genes in different batches without overwriting the existing results. For example, if nirK and rplB genes have been assembled (or at least completed the starting kmers identifying step), you would like to assemble nosZ genes. You can simply edit run_xander.sh to add "nosZ" to the list of genes and run the same command again. Note if you want to rebuild the bloom graph structure, you need to manually delete the .bloom file in the output directory. If you would like to rerun the assembly for a gene, you need to manually delete that gene output directory.
 
 ### Xander Assembly Steps 
 
@@ -102,7 +78,7 @@ Each step can be run separately. Some steps can be run in parallel as suggested 
  * Output 3: quality_filtered protein representative contigs (final_prot.fasta and final_prot_aligned.fasta)
 ```
 
-Note: the quality-filtered contigs in final_nucl.fasta, final_prot.fasta and final_prot_aligned.fasta should be used as the final set of contigs assembled by Xander.
+**Note: the quality-filtered contigs in final_nucl.fasta, final_prot.fasta and final_prot_aligned.fasta should be used as the final set of contigs assembled by Xander.**
 
 The following post-assembly analysis are included in run_xander_skel.sh. 
 
@@ -142,7 +118,7 @@ A script in bin/get_OTUabundance.sh is provided to create coverage-adjusted OTU 
 ### Parameters
 
 #### How to choose the FILTER_SIZE for your dataset?
-The size of the bloom filter (or memory needed) is approximately 2^FILTER_SIZE bits. Increase the FILTER_SIZE if the predicted false positive rate (in output file *_bloom_stat.txt) is greater than 1%. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1/2 GB memory) for data size of 2G, 35 (4 GB memory) for data size of 6G, 38 (32 GB memory) for data size of 70G were appropriate. 
+For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-3) bytes. The memory needed for Java is less than double the size of the bloom filter. Increase the FILTER_SIZE if the predicted false positive rate (in output file *_bloom_stat.txt) is greater than 1%. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1 GB memory) for data file size of 2GB, 35 (8 GB) for file size of 6GB, 38 (64 GB ) for file size of 70GB, 40 (256 GB) for file size of 350GB were appropriate. For count 2 bloom filter, double the sizes. 
 
 #### Analysis Parameters
 * SEQFILE -- Absolute path to the sequence files. Can use wildcards to point to multiple files (fasta, fataq or gz format)
@@ -166,4 +142,28 @@ The size of the bloom filter (or memory needed) is approximately 2^FILTER_SIZE b
 
 #### Other Paths
 * JAR_DIR -- Path to jar files for Xander/ReadSeq/FrameBot/KmerFilter (from RDPTools repository)
+* REF_DIR -- Path to Xander_assembler
 
+### Per Gene Preparation, requires biological insight!
+
+Reference sequence files and models for each gene targeted for assembly are placed in a gene ref directory inside the Xander_assembler directory. The analysis pipeline is preconfigured with _rplB_ gene, and nitrogen cycling genes including _nirK_, _nirS_, _nifH_, _nosZ_ and _amoA_.
+
+A subdirectory originaldata should be created inside each gene ref directory, four files are required for preparing HMMs and post-assembly processing:
+* gene.seeds: a small set of protein sequences in FASTA format, used to build gene.hmm, forward and reverse HMMs. Can be downloaded from FunGene (http://fungene.cme.msu.edu).
+* gene.hmm: this is the HMM built from gene.seeds using original HMMER3. This is used to build for_enone.hmm and align contigs after assembly. Can be downloaded from FunGene.
+* framebot.fa: a large near full length known protein set for identifying start kmers and FrameBot nearest matching. More diversity is better, more sequences means more starting points (more computational time) but less susceptible to noise than model creation. Prefer near full-length and well-annotated sequences. Filter with Minimum HMM Coverage at least 80 (%).
+* nucl.fa: a large near full length known set used by UCHIME chimera check.
+
+The gene ref directory must have three files for Xander assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0. The modified version is tuned to detect close orthologs. Three output files will be written to the gene ref directory:
+* for_enone.hmm and rev_enone.hmm for the forward and reverse HMMs respectively. This is used to assemble gene contigs.
+* A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. Need to manually examine the alignment using Jalview or alignment viewing tool to spot any badly aligned sequences. If found, it is likely there are no sequences in gene.seeds close these sequences. You need to valide these problem sequences to see they are from the gene you are interested, then either remoe them or add some representative sequences to gene.seeds and repeat the prepartion steps.
+
+
+How to apply Xander patch to hmmer-3.0?
+```
+* Download hmmer-3.0.tar.gz from ftp://selab.janelia.org/pub/software/hmmer3/3.0/
+* Unzip and untar hmmer-3.0.tar.gz, you will get a directory called hmmer-3.0. Rename hmmer-3.0 to hmmer-3.0_xanderpatch.
+* Apply the patch file using the patch file hmmer-3.0_Xander_patch.txt:
+  patch hmmer-3.0_xanderpatch/src/p7_prior.c < Xander_assembler/bin/hmmer-3.0_Xander_patch.txt
+* Follow the instructions from hmmer-3.0_xanderpatch/INSTALL to install.
+```
