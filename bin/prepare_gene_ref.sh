@@ -7,8 +7,7 @@ fi
 
 ## THIS MUST BE MODIFIED TO YOUR FILE SYSTEM
 JAR_DIR=/mnt/research/rdp/public/RDPTools/
-#REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler
-REF_DIR=/mnt/research/rdp/private/Qiong_xander_analysis/RDPTools/Xander_assembler/
+REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler/
 
 ## NOTE you need to used the modified hmmer-3.0_xanderpatch to build the specialized forward and reverse HMMs for Xander 
 hmmer_xanderpatch=/mnt/research/rdp/public/thirdParty/hmmer-3.0_xanderpatch/
@@ -29,7 +28,7 @@ gene=$1
 ## ref_aligned.faa will be used by Xander find starting kmer step
 
 
-cd ${REF_DIR}/${gene}/originaldata || { echo " directory not found" ;  exit 1; }
+cd ${REF_DIR}/gene_resource/${gene}/originaldata || { echo " directory not found" ;  exit 1; }
 
 ## create forward and reverse hmms for Xander.
 ${hmmer_xanderpatch}/src/hmmalign --allcol -o ${gene}_seeds_aligned.stk ${gene}.hmm ${gene}.seeds

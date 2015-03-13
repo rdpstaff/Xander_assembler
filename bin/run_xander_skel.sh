@@ -21,7 +21,7 @@
 ## SEQFILE can use wildcards to point to multiple files (fasta, fataq or gz format), as long as there are no spaces in the names
 SEQFILE=/mnt/research/rdp/public/RDPTools/Xander_assembler/testdata/test_reads.fa
 WORKDIR=/mnt/research/rdp/public/RDPTools/Xander_assembler/testdata
-REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler
+REF_DIR=/mnt/research/rdp/public/RDPTools/Xander_assembler/
 JAR_DIR=/mnt/research/rdp/public/RDPTools/
 UCHIME=/mnt/research/rdp/public/thirdParty/uchime-4.2.40/uchime
 HMMALIGN=/opt/software/HMMER/3.1b1--GCC-4.4.5/bin/hmmalign
@@ -94,7 +94,7 @@ echo "### Find starting kmers for ${genes_to_assembly[*]}"
 genereffiles=
 for gene in ${genes_to_assembly[*]}
    do
-        genereffiles+="${gene}=${REF_DIR}/${gene}/ref_aligned.faa "
+        genereffiles+="${gene}=${REF_DIR}/gene_resource/${gene}/ref_aligned.faa "
    done
 
 # if there are multiple input seqfiles, do one at a time, This step takes time, recommend run multithreads
@@ -131,8 +131,8 @@ do
 		continue;
 	fi
 	echo "### Search contigs ${gene}"
-	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/${gene}/for_enone.hmm ${REF_DIR}/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt"
-	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/${gene}/for_enone.hmm ${REF_DIR}/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt || { echo "search contigs failed for ${gene}" ; exit 1; }
+	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/gene_resource/${gene}/for_enone.hmm ${REF_DIR}/gene_resource/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt"
+	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/gene_resource/${gene}/for_enone.hmm ${REF_DIR}/gene_resource/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt || { echo "search contigs failed for ${gene}" ; exit 1; }
 
 	## merge contigs 
 	if [ ! -s gene_starts.txt_nucl.fasta ]; then
@@ -141,8 +141,8 @@ do
 	echo "### Merge contigs"
 	## define the prefix for the output file names
 	fileprefix=${SAMPLE_SHORTNAME}_${gene}_${K_SIZE}
-	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta"
-	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta || { echo "merge contigs failed for ${gene}" ; exit 1;}
+	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/gene_resource/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta"
+	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/gene_resource/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta || { echo "merge contigs failed for ${gene}" ; exit 1;}
 
 	## get the unique merged contigs
 	if [ ! -s prot_merged.fasta ]; then
@@ -160,7 +160,7 @@ do
 
 	## prot_merged.fasta might be empty, continue to next gene
 	## if use HMMER3.0, need --allcol option ##
-	${HMMALIGN} -o alignment/aligned.stk ${REF_DIR}/${gene}/originaldata/${gene}.hmm ../${fileprefix}_prot_merged_rmdup.fasta || { echo "hmmalign failed" ;  continue; }
+	${HMMALIGN} -o alignment/aligned.stk ${REF_DIR}/gene_resource/${gene}/originaldata/${gene}.hmm ../${fileprefix}_prot_merged_rmdup.fasta || { echo "hmmalign failed" ;  continue; }
 
 	java -Xmx2g -jar ${JAR_DIR}/AlignmentTools.jar alignment-merger alignment aligned.fasta || { echo "alignment merger failed" ;  exit 1; }
 
@@ -186,7 +186,7 @@ do
 
 	echo "### Chimera removal"
 	# remove chimeras and obtain the final good set of nucleotide and protein contigs
-        ${UCHIME} --input ${fileprefix}_nucl_rep_seqs.fasta --db ${REF_DIR}/${gene}/originaldata/nucl.fa --uchimeout results.uchime.txt -uchimealns result_uchimealn.txt || { echo "chimera check failed" ;  continue; }
+        ${UCHIME} --input ${fileprefix}_nucl_rep_seqs.fasta --db ${REF_DIR}/gene_resource/${gene}/originaldata/nucl.fa --uchimeout results.uchime.txt -uchimealns result_uchimealn.txt || { echo "chimera check failed" ;  continue; }
         egrep '\?$|Y$' results.uchime.txt | cut -f2 | cut -f1 -d ' ' | cut -f1 > chimera.id || { echo " egrep failed" ;  exit 1; }
 	java -Xmx2g -jar ${JAR_DIR}/ReadSeq.jar select-seqs chimera.id ${fileprefix}_final_nucl.fasta fasta N ${fileprefix}_nucl_rep_seqs.fasta || { echo " select-seqs ${fileprefix}_nucl_rep_seqs.fasta failed" ; exit 1; }
 
@@ -198,8 +198,8 @@ do
 
         ## find the closest matches of the nucleotide representatives using FrameBot
 	echo "### FrameBot"
-        echo "java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${gene}_${K_SIZE} ${REF_DIR}/${gene}/originaldata/framebot.fa nucl_rep_seqs_rmchimera.fasta"
-        java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${fileprefix} ${REF_DIR}/${gene}/originaldata/framebot.fa ${fileprefix}_final_nucl.fasta || { echo "FrameBot failed for ${gene}" ; continue; }
+        echo "java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${gene}_${K_SIZE} ${REF_DIR}/gene_resource/${gene}/originaldata/framebot.fa nucl_rep_seqs_rmchimera.fasta"
+        java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${fileprefix} ${REF_DIR}/gene_resource/${gene}/originaldata/framebot.fa ${fileprefix}_final_nucl.fasta || { echo "FrameBot failed for ${gene}" ; continue; }
 
 	## or find the closest matches of protein representatives final_prot.fasta using AlignmentTool pairwise-knn
 
@@ -209,7 +209,7 @@ do
         java -Xmx2g -jar ${JAR_DIR}/KmerFilter.jar kmer_coverage -t ${THREADS} -m ${fileprefix}_match_reads.fa ${K_SIZE} ${fileprefix}_final_nucl.fasta ${fileprefix}_coverage.txt ${fileprefix}_abundance.txt ${SEQFILE} || { echo "kmer_coverage failed" ;  continue; }
 
 	## get the taxonomic abundance, use the lineage from the protein reference file
-	java -Xmx2g -jar ${JAR_DIR}/FrameBot.jar taxonAbund -c ${fileprefix}_coverage.txt ${fileprefix}_framebot.txt ${REF_DIR}/${gene}/originaldata/framebot.fa ${fileprefix}_taxonabund.txt
+	java -Xmx2g -jar ${JAR_DIR}/FrameBot.jar taxonAbund -c ${fileprefix}_coverage.txt ${fileprefix}_framebot.txt ${REF_DIR}/gene_resource/${gene}/originaldata/framebot.fa ${fileprefix}_taxonabund.txt
 
 
 done

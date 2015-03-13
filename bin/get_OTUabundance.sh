@@ -14,7 +14,6 @@
 
 ## THIS MUST BE MODIFIED TO YOUR FILE SYSTEM
 ## must be absolute path
-REF_DIR=/mnt/research/rdp/private/Qiong_xander_analysis/RDPTools/Xander_assembler/
 JAR_DIR=/mnt/research/rdp/private/Qiong_xander_analysis/RDPTools/
 MAX_JVM_HEAP=2G # memory for java program
 

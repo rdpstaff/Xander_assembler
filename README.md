@@ -146,7 +146,7 @@ For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-
 
 ### Per Gene Preparation, requires biological insight!
 
-Reference sequence files and models for each gene targeted for assembly are placed in a gene ref directory inside the Xander_assembler directory. The analysis pipeline is preconfigured with _rplB_ gene, and nitrogen cycling genes including _nirK_, _nirS_, _nifH_, _nosZ_ and _amoA_.
+Reference sequence files and models for each gene targeted for assembly are placed in a gene ref directory inside the Xander_assembler/gene_resource directory. The analysis pipeline is preconfigured with _rplB_ gene, and nitrogen cycling genes including _nirK_, _nirS_, _nifH_, _nosZ_ and _amoA_.
 
 A subdirectory originaldata should be created inside each gene ref directory, four files are required for preparing HMMs and post-assembly processing:
 * gene.seeds: a small set of protein sequences in FASTA format, used to build gene.hmm, forward and reverse HMMs. Can be downloaded from FunGene (http://fungene.cme.msu.edu).
