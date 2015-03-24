@@ -118,7 +118,7 @@ A script in bin/get_OTUabundance.sh is provided to create coverage-adjusted OTU 
 ### Parameters
 
 #### How to choose the FILTER_SIZE for your dataset?
-For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-3) bytes. The memory needed for Java is less than double the size of the bloom filter. Increase the FILTER_SIZE if the predicted false positive rate (in output file *_bloom_stat.txt) is greater than 1%. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1 GB memory) for data file size of 2GB, 35 (8 GB) for file size of 6GB, 38 (64 GB ) for file size of 70GB, 40 (256 GB) for file size of 350GB were appropriate. For count 2 bloom filter, double the sizes. 
+For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-3) bytes. The memory needed for Java is less than double the size of the bloom filter. Increase the FILTER_SIZE if the predicted false positive rate (in output file *_bloom_stat.txt) is greater than 1%. Based on our experience with soil metagenome data, FILTER_SIZE 32 (1 GB memory) for data file size of 2GB, 35 (8 GB) for file size of 6GB, 38 (64 GB ) for file size of 70GB, 40 (256 GB) for file size of 350GB were appropriate. For count 2 bloom filter, double the memory sizes. 
 
 #### Analysis Parameters
 * SEQFILE -- Absolute path to the sequence files. Can use wildcards to point to multiple files (fasta, fataq or gz format)
