@@ -28,7 +28,7 @@ HMMALIGN=/opt/software/HMMER/3.1b1--GCC-4.4.5/bin/hmmalign
 #K_SIZE=45  # kmer size, should be multiple of 3
 #FILTER_SIZE=32 # memory = 2**FILTER_SIZE, 38 = 32 GB, 37 = 16 GB, 36 = 8 GB, 35 = 4 GB, increase FILTER_SIZE if the bloom filter predicted false positive rate is greater than 1%
 #MAX_JVM_HEAP=2G # memory for java program, must be larger than the corresponding memory of the FILTER_SIZE
-MIN_COUNT=1  # minimum kmer abundance in SEQFILE to be included in the final de Bruijn graph structure
+#MIN_COUNT=2  # minimum kmer abundance in SEQFILE to be included in the final de Bruijn graph structure
 
 ## ppn should be THREADS +1
 #THREADS=1

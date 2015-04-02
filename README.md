@@ -21,14 +21,14 @@ Presentation about Xander can be found in http://rdp.cme.msu.edu/download/poster
 
 
 ### Quickstart using shell script
-Use testdata as an example. Make a copy of bin/run_xander_skel.sh and change path variables to be the absolute paths in your system. For your samples, you may also need to adjust the de Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size. The script will attempt to assemble all genes specified in "genes" in the shell script, which requires a gene ref directory for each gene.
+Use testdata as an example. Make a copy of bin/xander_setenv.sh and change path variables to be the absolute paths in your system. For your samples, you may also need to adjust the de Bruijn Graph Build Parameters, especially the FILTER_SIZE for bloom filter size. The script will attempt to assemble all genes specified in "genes" in the shell script, which requires a gene ref directory for each gene.
 
 ```
 bash
 cd testdata
-cp ../bin/run_xander_skel.sh run_xander.sh
-# edit the run_xander.sh
-./run_xander.sh
+cp ../bin/xander_setenv.sh my_xander_setenv.sh
+# edit the parameters in my_xander_setenv.sh 
+../bin/run_xander_skel.sh my_xander_setenv.sh "build find search" "nifh nirK"
 ```
 
 The run_xander.sh will create an assembly output directory "k45" for kmer length of 45. It makes an output directory for each gene inside "k45" and saves all the output in the gene output directory. The shell script allows to assemble genes in different batches without overwriting the existing results. For example, if nirK and rplB genes have been assembled (or at least completed the starting kmers identifying step), you would like to assemble nosZ genes. You can simply edit run_xander.sh to add "nosZ" to the list of genes and run the same command again. Note if you want to rebuild the bloom graph structure, you need to manually delete the .bloom file in the output directory. If you would like to rerun the assembly for a gene, you need to manually delete that gene output directory.

@@ -3,10 +3,10 @@
 #### start of configuration
 
 ###### Adjust values for these parameters ####
-#       SEQFILE, genes, SAMPLE_SHORTNAME
+#       SEQFILE, SAMPLE_SHORTNAME
 #       WORKDIR, REF_DIR, JAR_DIR, UCHIME, HMMALIGN
 #       FILTER_SIZE, MAX_JVM_HEAP, K_SIZE
-#       THREADS, ppn
+#       THREADS
 #####################
 
 ## THIS SECTION MUST BE MODIFIED FOR YOUR FILE SYSTEM. MUST BE ABSOLUTE PATH
@@ -18,9 +18,7 @@ JAR_DIR=/mnt/research/rdp/public/RDPTools/
 UCHIME=/mnt/research/rdp/public/thirdParty/uchime-4.2.40/uchime
 HMMALIGN=/opt/software/HMMER/3.1b1--GCC-4.4.5/bin/hmmalign
 
-
-## THIS SECTION NEED TO BE MODIFIED FOR GENES INTERESTED, and SAMPLE_SHORTNAME WILL BE THE PREFIX OF CONTIG ID
-genes=(nifH nirK rplB nosZ)
+## THIS SECTION NEED TO BE MODIFIED, SAMPLE_SHORTNAME WILL BE THE PREFIX OF CONTIG ID
 SAMPLE_SHORTNAME=test
 
 ## THIS SECTION MUST BE MODIFIED BASED ON THE INPUT DATASETS
@@ -28,9 +26,9 @@ SAMPLE_SHORTNAME=test
 K_SIZE=45  # kmer size, should be multiple of 3
 FILTER_SIZE=32 # memory = 2**FILTER_SIZE, 38 = 32 GB, 37 = 16 GB, 36 = 8 GB, 35 = 4 GB, increase FILTER_SIZE if the bloom filter predicted false positive rate is greater than 1%
 MAX_JVM_HEAP=2G # memory for java program, must be larger than the corresponding memory of the FILTER_SIZE
-MIN_COUNT=1  # minimum kmer abundance in SEQFILE to be included in the final de Bruijn graph structure
+MIN_COUNT=2  # minimum kmer abundance in SEQFILE to be included in the final de Bruijn graph structure
 
-## ppn should be THREADS +1
+## number of threads to use for find starting kmer step and kmer coverage mapping step
 THREADS=1
 
 ## Contig Search Parameters
@@ -40,7 +38,7 @@ LIMIT_IN_SECS=100 # number of seconds a search allowed for each kmer, recommend 
 
 ## Contig Merge Parameters
 MIN_BITS=50  # mimimum assembled contigs bit score
-MIN_LENGTH=100  # minimum assembled protein contigs
+MIN_LENGTH=150  # minimum assembled protein contigs
 
 ## Contig Clustering Parameters
 DIST_CUTOFF=0.01  # cluster at aa distance 

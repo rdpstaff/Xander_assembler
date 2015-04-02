@@ -1,15 +1,20 @@
 #!/bin/bash -login
-#PBS -A bicep
-#PBS -l walltime=5:00:00,nodes=01:ppn=2,mem=2gb
-#PBS -q main
-#PBS -M wangqion@msu.edu
-#PBS -m abe
 
-##### EXAMPLE: qsub command on MSU HPCC
-# qsub -l walltime=1:00:00,nodes=01:ppn=2,mem=2GB -v MAX_JVM_HEAP=2G,FILTER_SIZE=32,K_SIZE=45,genes="nifH nirK rplB amoA_AOA",THREADS=1,SAMPLE_SHORTNAME=test,WORKDIR=/PATH/testdata/,SEQFILE=/PATH/testdata/test_reads.fa qsub_run_xander.sh
+## This script finds the starting kmers for the genes, requires less than 2GB memory 
+## for each gene in the list of genes, if a directory already exists in the output directory, it will skip that gene
+## if not exists, will create a directory for that gene and include that gene in the find starting kmers step 
+
+if [ $# -ne 2 ]; then
+        echo "Requires two inputs : /path/xander_setenv.sh genes"
+        echo "  xander_setenv.sh is a file containing the parameter settings, requires absolute path. see example RDPTools/Xander_assembler/bin/xander_setenv.sh"
+        echo '  genes should contain one or more genes to process with quotes around'
+        echo 'Example command: /path/xander_setenv.sh "nifH nirK rplB"'
+        exit 1
+fi
 
 #### start of configuration, xander_setenv.sh or qsub_xander_setenv.sh
 source $1
+genes=$2
 #### end of configuration
 
 mkdir -p ${WORKDIR}/${NAME} || { echo "mkdir -p ${WORKDIR}/${NAME} failed"; exit 1;}
@@ -20,7 +25,7 @@ genes_to_assembly=( )
 for gene in ${genes[*]}
 do
     if [ -d "${WORKDIR}/${NAME}/${gene}" ]; then
-        echo "DIRECTORY ${WORKDIR}/${NAME}/${gene} EXISTS, SKIPPING (manually delete if you want to rerun) "   
+        echo "DIRECTORY ${WORKDIR}/${NAME}/${gene} EXISTS, SKIPPING find starting kmer (manually delete if you want to rerun) "   
     else
         mkdir ${WORKDIR}/${NAME}/${gene}
         ## add to assembly list

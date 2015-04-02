@@ -1,28 +1,26 @@
 #!/bin/bash -login
-#PBS -A bicep
-#PBS -l walltime=5:00:00,nodes=01:ppn=2,mem=2gb
-#PBS -q main
-#PBS -M wangqion@msu.edu
-#PBS -m abe
 
-##### EXAMPLE: qsub command on MSU HPCC
-# qsub -l walltime=1:00:00,nodes=01:ppn=2,mem=2GB -v MAX_JVM_HEAP=2G,FILTER_SIZE=32,K_SIZE=45,genes="nifH nirK rplB amoA_AOA",THREADS=1,SAMPLE_SHORTNAME=test,WORKDIR=/PATH/testdata/,SEQFILE=/PATH/testdata/test_reads.fa qsub_run_xander.sh
+## This script runs contigs search and post-assembly processing
+## The search step requires large memory for large dataset, see Readme for instructions
+## This step assumes a gene directory already exists with gene_start.txt in the directory for each gene in the genes list
+## This will overwrites the previous search and post-assembly results
+
+if [ $# -ne 2 ]; then
+        echo "Requires two inputs : /path/xander_setenv.sh genes"
+        echo "  xander_setenv.sh is a file containing the parameter settings, requires absolute path. see example RDPTools/Xander_assembler/bin/xander_setenv.sh"
+        echo '  genes should contain one or more genes to process with quotes around'
+        echo 'Example command: /path/xander_setenv.sh "nifH nirK rplB"'
+        exit 1
+fi
 
 #### start of configuration, xander_setenv.sh or qsub_xander_setenv.sh
 source $1
+genes=$2
 #### end of configuration
 
 
-#genes_tosearch="nirK rplB"
-if [[ -z "$2" ]]
-then
-	genes_tosearch=${genes[*]}
-else
-	genes_tosearch=$2
-fi
-
 ## search contigs
-for gene in ${genes_tosearch}
+for gene in ${genes}
 do
 	cd ${WORKDIR}/${NAME}/${gene}
 	## the starting kmer might be empty for this gene, continue to next gene
