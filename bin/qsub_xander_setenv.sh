@@ -40,7 +40,7 @@ LIMIT_IN_SECS=100 # number of seconds a search allowed for each kmer, recommend 
 
 ## Contig Merge Parameters
 MIN_BITS=50  # mimimum assembled contigs bit score
-MIN_LENGTH=100  # minimum assembled protein contigs
+MIN_LENGTH=150  # minimum assembled protein contigs
 
 ## Contig Clustering Parameters
 DIST_CUTOFF=0.01  # cluster at aa distance 
