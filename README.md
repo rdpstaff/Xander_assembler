@@ -4,6 +4,8 @@ Metagenomics can provide important insight into microbial communities. However, 
 
 We have been using Xander to assemble contigs for both phylogenetic marker gene and functional marker genes from soil metegenomic data ranging from 5 GB to 350 GB. We compared our method to a recently published bulk metagenome assembly method and a recently published gene-targeted assembler and found our method produced more, longer and higher-quality gene sequences. Xander can detect low-abundance genes and low-abundance organisms. HMMs can be tailored to the targeted genes, allowing flexibility to improve annotation over generic annotation pipelines.
 
+Trivia:: The name Xander comes from Alexander the Great, who cut the Gordian knot.
+
 ### Required tools
 
 * RDPTools (https://github.com/rdpstaff/RDPTools)
