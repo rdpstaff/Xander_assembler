@@ -1,5 +1,4 @@
 #!/bin/bash -login
-#PBS -A bicep
 #PBS -l walltime=5:00:00,nodes=01:ppn=2,mem=2gb
 #PBS -q main
 #PBS -M wangqion@msu.edu
