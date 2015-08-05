@@ -5,6 +5,8 @@ Metagenomics can provide important insight into microbial communities. However, 
 We have been using Xander to assemble contigs for both phylogenetic marker gene and functional marker genes from soil metegenomic data ranging from 5 GB to 350 GB. We compared our method to a recently published bulk metagenome assembly method and a recently published gene-targeted assembler and found our method produced more, longer and higher-quality gene sequences. Xander can detect low-abundance genes and low-abundance organisms. HMMs can be tailored to the targeted genes, allowing flexibility to improve annotation over generic annotation pipelines.
 
 Trivia:: The name Xander comes from Alexander the Great, who cut the Gordian knot.
+Children and lunatics cut the Gordian knot, which the poet spends his life patiently trying to untie.
+	- Jean Cocteau
 
 ### Required tools
 
@@ -15,7 +17,7 @@ Trivia:: The name Xander comes from Alexander the Great, who cut the Gordian kno
 * UCHIME (http://drive5.com/usearch/manual/uchime_algo.html)
 
 ### Citation
-Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Xander: Employing a Novel Method for Efficient Gene-Targeted Metagenomic Assembly. Submitted. 
+Wang, Q., J. A. Fish, M. Gilman, Y. Sun, C. T. Brown, J. M. Tiedje and J. R. Cole. Xander: Employing a Novel Method for Efficient Gene-Targeted Metagenomic Assembly. Microbiome.2015, 3:32. DOI: 10.1186/s40168-015-0093-6. URL: http://www.microbiomejournal.com/content/3/1/32. 
 
 Presentation about Xander can be found in http://rdp.cme.msu.edu/download/posters/Xander_assembler_022015.pdf
 
@@ -168,12 +170,12 @@ A subdirectory originaldata should be created inside each gene ref directory, fo
 * framebot.fa: a large near full length known protein set for identifying start kmers and FrameBot nearest matching. More diversity is better, more sequences means more starting points (more computational time) but less susceptible to noise than model creation. Prefer near full-length and well-annotated sequences. Filter with Minimum HMM Coverage at least 80 (%).
 * nucl.fa: a large near full length known set used by UCHIME chimera check.
 
-The gene ref directory must have three files for Xander assembly. A script in bin/prepare_gene_ref.sh is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0. The modified version is tuned to detect close orthologs. Three output files will be written to the gene ref directory:
+The gene ref directory must have three files for Xander assembly. A script in **bin/prepare_gene_ref.sh** is provided to build specialized forward and reverse HMMs using hmmer-3.0_xanderpatch, a modified version of HMMMER3.0. The modified version is tuned to detect close orthologs. Three output files will be written to the gene ref directory:
 * for_enone.hmm and rev_enone.hmm for the forward and reverse HMMs respectively. This is used to assemble gene contigs.
 * A ref_aligned.faa file containing a set of protein reference sequences aligned with for_enone.hmm. This is used to identify starting kmers. Need to manually examine the alignment using Jalview or alignment viewing tool to spot any badly aligned sequences. If found, it is likely there are no sequences in gene.seeds close these sequences. You need to valide these problem sequences to see they are from the gene you are interested, then either remoe them or add some representative sequences to gene.seeds and repeat the prepartion steps.
 
 
-How to apply Xander patch to hmmer-3.0?
+**How to apply Xander patch to hmmer-3.0?**
 ```
 * Download hmmer-3.0.tar.gz from ftp://selab.janelia.org/pub/software/hmmer3/3.0/
 * Unzip and untar hmmer-3.0.tar.gz, you will get a directory called hmmer-3.0. Rename hmmer-3.0 to hmmer-3.0_xanderpatch.
