@@ -12,6 +12,8 @@ if [ $# -ne 2 ]; then
         exit 1
 fi
 
+set -x
+
 #### start of configuration, xander_setenv.sh or qsub_xander_setenv.sh
 source $1
 genes=$2
@@ -51,7 +53,6 @@ for gene in ${genes_to_assembly[*]}
 temp_order_no=1
 for seqfile in ${SEQFILE}
    do
-        echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/KmerFilter.jar fast_kmer_filter -a -o temp_starts_${temp_order_no}.txt -t ${THREADS} ${K_SIZE} ${seqfile} ${genereffiles}"
         java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/KmerFilter.jar fast_kmer_filter -a -o temp_starts_${temp_order_no}.txt -t ${THREADS} ${K_SIZE} ${seqfile} ${genereffiles} || { echo "find starting kmers failed" ;  exit 1; }
         ((temp_order_no = $temp_order_no + 1))
    done

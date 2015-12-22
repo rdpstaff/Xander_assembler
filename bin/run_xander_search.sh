@@ -13,6 +13,8 @@ if [ $# -ne 2 ]; then
         exit 1
 fi
 
+set -x
+
 #### start of configuration, xander_setenv.sh or qsub_xander_setenv.sh
 source $1
 genes=$2
@@ -28,7 +30,6 @@ do
 		continue;
 	fi
 	echo "### Search contigs ${gene}"
-	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/gene_resource/${gene}/for_enone.hmm ${REF_DIR}/gene_resource/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt"
 	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar search -p ${PRUNE} ${PATHS} ${LIMIT_IN_SECS} ../k${K_SIZE}.bloom ${REF_DIR}/gene_resource/${gene}/for_enone.hmm ${REF_DIR}/gene_resource/${gene}/rev_enone.hmm gene_starts.txt 1> stdout.txt 2> stdlog.txt || { echo "search contigs failed for ${gene}" ; exit 1; }
 
 	## merge contigs 
@@ -38,7 +39,6 @@ do
 	echo "### Merge contigs"
 	## define the prefix for the output file names
 	fileprefix=${SAMPLE_SHORTNAME}_${gene}_${K_SIZE}
-	echo "java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/gene_resource/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta"
 	java -Xmx${MAX_JVM_HEAP} -jar ${JAR_DIR}/hmmgs.jar merge -a -o merge_stdout.txt -s ${SAMPLE_SHORTNAME} -b ${MIN_BITS} --min-length ${MIN_LENGTH} ${REF_DIR}/gene_resource/${gene}/for_enone.hmm stdout.txt gene_starts.txt_nucl.fasta || { echo "merge contigs failed for ${gene}" ; exit 1;}
 
 	## get the unique merged contigs
@@ -95,14 +95,12 @@ do
 
         ## find the closest matches of the nucleotide representatives using FrameBot
 	echo "### FrameBot"
-        echo "java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${gene}_${K_SIZE} ${REF_DIR}/gene_resource/${gene}/originaldata/framebot.fa nucl_rep_seqs_rmchimera.fasta"
         java -jar ${JAR_DIR}/FrameBot.jar framebot -N -l ${MIN_LENGTH} -o ${fileprefix} ${REF_DIR}/gene_resource/${gene}/originaldata/framebot.fa ${fileprefix}_final_nucl.fasta || { echo "FrameBot failed for ${gene}" ; continue; }
 
 	## or find the closest matches of protein representatives final_prot.fasta using AlignmentTool pairwise-knn
 
 	## find kmer coverage of the representative seqs, this step takes time, recommend to run multiplethreads
 	echo "### Kmer abundance"
-        echo "java -Xmx2g -jar ${JAR_DIR}/KmerFilter.jar kmer_coverage -t ${THREADS} -m ${fileprefix}_match_reads.fa ${K_SIZE} ${fileprefix}_final_nucl.fasta ${fileprefix}_coverage.txt ${fileprefix}_abundance.txt ${SEQFILE}"
         java -Xmx2g -jar ${JAR_DIR}/KmerFilter.jar kmer_coverage -t ${THREADS} -m ${fileprefix}_match_reads.fa ${K_SIZE} ${fileprefix}_final_nucl.fasta ${fileprefix}_coverage.txt ${fileprefix}_abundance.txt ${SEQFILE} || { echo "kmer_coverage failed" ;  continue; }
 
 	## get the taxonomic abundance, use the lineage from the protein reference file
