@@ -145,7 +145,7 @@ For count 1 bloom, the size of the bloom filter is approximately 2^(FILTER_SIZE-
 #### DBG Parameters
 * MAX_JVM_HEAP -- Maximum amount of memory DBG processes can use (must be larger than FILTER_SIZE below)
 * K_SIZE -- K-mer size to assemble at, must be divisible by 3 (recommend 45, maximum 63)
-* FILTER_SIZE -- size of the bloom filter, 2**FILTER_SIZE, 38 = 32 GB, 37 = 16 GB, 36 = 8 GB, 35 = 4 GB, increase FILTER_SIZE if the bloom filter predicted false positive rate is greater than 1%
+* FILTER_SIZE -- size of the bloom filter, 2**(FILTER_SIZE-3), 38 = 32 GB, 37 = 16 GB, 36 = 8 GB, 35 = 4 GB, increase FILTER_SIZE if the bloom filter predicted false positive rate is greater than 1%
 * MIN_COUNT=1 -- minimum kmer occurrence in SEQFILE to be included in the final bloom filter
 
 #### Contig Search Parameters
